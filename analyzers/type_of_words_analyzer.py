@@ -8,11 +8,12 @@ from textblob import TextBlob
 
 
 class WordTypesAnalyzer:
-    def __init__(self, text):
+    def __init__(self, text, job):
         self.text = text
         self.text_blob = TextBlob(self.text)
+        self.job = job
 
     def process(self):
         """Return the tags"""
-        return self.text_blob.tags
+        return self.text_blob.tags, self.job
 
