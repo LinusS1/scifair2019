@@ -4,15 +4,17 @@ Then it counts how many letters there are in the text.
 Finally, it finds the "Capitalization score" by dividing the number of capitalized letters by
 the number of letters in the text
 """
-
+import string
+import re
 
 class CapsScore:
-    def __init__(self, text):
+    def __init__(self, text, job):
         self.text = text
+        self.job = job
 
     def pre_process(self):
-        """Take out spaces"""
-        return self.text.replace(" ", "")
+        """Take out spaces and punctuation"""
+        return re.sub(r'[^\w\s]','',self.text.replace(" ", ""))
 
     def count_num_caps(self):
         """Count number of letters that are capitalized"""
@@ -29,5 +31,5 @@ class CapsScore:
         return score
 
     def process(self):
-        return self.score()
+        return self.score(), self.job
 
