@@ -6,7 +6,7 @@ The input text is given a negativity score: number of negative divided by total 
 import re
 
 # Load all the negative words
-neg_sent = open("negative_words.txt").read()
+neg_sent = open("analyzers/negative_words.txt").read()
 negative_words=neg_sent.split('\n')
 negative_counts=[]
 
@@ -20,7 +20,6 @@ class NegativeScore:
         return re.sub(r'[^\w\s]','',self.text.lower()).split(' ')
 
     def count_num_negative_words(self):
-        """Count number of letters that are capitalized"""
         negative_word_count = 0
         text = self.pre_process()
         for word in text:

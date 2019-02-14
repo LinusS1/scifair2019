@@ -7,22 +7,24 @@ the number of letters in the text
 import string
 import re
 
+
 class CapsScore:
     def __init__(self, text, job):
         self.text = text
         self.job = job
 
+    @property
     def pre_process(self):
         """Take out spaces and punctuation"""
         return re.sub(r'[^\w\s]','',self.text.replace(" ", ""))
 
     def count_num_caps(self):
         """Count number of letters that are capitalized"""
-        text = self.pre_process()
+        text = self.pre_process
         return sum(1 for c in text if c.isupper())
 
     def count_num_letters(self):
-        return len(self.pre_process())
+        return len(self.pre_process)
 
     def score(self):
         caps = self.count_num_caps()
@@ -32,4 +34,3 @@ class CapsScore:
 
     def process(self):
         return self.score(), self.job
-
