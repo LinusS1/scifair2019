@@ -39,4 +39,3 @@ class NegativeScore:
 
     def process(self):
         return self.score(), self.job
-
