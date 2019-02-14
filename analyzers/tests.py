@@ -1,5 +1,6 @@
 """Tests for the analyzers to make sure nothing breaks/stops working when I update them"""
 from unittest import TestCase
+import unittest
 from .misspelled_words_analyzer import MisspellingsAnalyzer
 from .length_of_words_analyzer import LengthOfWordsAnalyzer
 from .negitive_words import NegativeScore
@@ -67,3 +68,4 @@ class TestCapsScore(TestCase):
     def test_process_all_caps(self):
         analyzer = CapsScore("BREAKING NEWS", "news")
         self.assertEqual(analyzer.process(), (1, "news"))
+
