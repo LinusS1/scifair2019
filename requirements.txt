@@ -1,3 +1,6 @@
 textblob
 pytest
 twitter-analysis
+keras
+numpy
+pandas
