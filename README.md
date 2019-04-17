@@ -1,12 +1,3 @@
-### Finding a person's ocupation by text analysis
--------
-Build Status: [![Build Status](https://travis-ci.com/LinusS1/scifair2019.svg?token=LEvzVqrrzmQZyygZF6Yd&branch=master)](https://travis-ci.com/LinusS1/scifair2019)
+## Determine the positivity of a review
 
-Eckstein Science Fair, 2019
-
-Outputs:
-
-| Number        | Job           |
-| ------------- |:-------------:|
-| 0      | politician |
-| 1      |   scientist    |
+To see the code, click on `main.py`
