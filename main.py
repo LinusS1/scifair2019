@@ -1,72 +1,68 @@
-"""This file will:
- - Download the data
- - run through the analyzers
- - save the data from the analyzers"""
-from twitter_analysis import get_tweets
-import pickle
-from analyzers.misspelled_words_analyzer import MisspellingsAnalyzer
-from analyzers.length_of_words_analyzer import LengthOfWordsAnalyzer
-from analyzers.negitive_words import NegativeScore
-from analyzers.type_of_words_analyzer import WordTypesAnalyzer
-from analyzers.word_case_analyzer import CapsScore
+from keras.preprocessing import sequence
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation
+from keras.layers import Embedding
+from keras.layers import Conv1D, GlobalMaxPooling1D
+from keras.datasets import imdb
 
-poli_username = []  # List of politition usernames
-news_username = []  # List of reporters usernames
-sci_username = ["SeaPubSchools"]  # List of scientists usernames
+# settings:
+max_features = 4000
+maxlen = 400
+batch_size = 32
+embedding_dims = 50
+filters = 250
+kernel_size = 3
+epochs = 2
 
-poli_text = []  # The texts from politions
-news_text = []  # The texts from reporters
-sci_text = []  # The texts from scientists
+print('Loading data...')
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
 
-job_usernames = [poli_username, news_username, sci_username]
+print('Pad sequences (samples x time)')
+x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
 
-# Get tweets
-for job in job_usernames:
-    for username in job:
-        print("Getting text for " + username)
-        # Download 30 tweets from each username
-        for tweet in get_tweets(username, tweets=30, retweets=False):
-            if tweet.get("orginaluser") == username:
-                if job == poli_username:
-                    poli_text.append(tweet.get("text"))
-                elif job == news_username:
-                    news_text.append(tweet.get("text"))
-                elif job == sci_username:
-                    sci_text.append(tweet.get("text"))
+print('Build model...')
+model = Sequential()
 
-job_text = {"poli": poli_text, "news": news_text, "sci": sci_text}
-print("Done Downloading data.")
-print("Running through analyzers")
+# we start off with an efficient embedding layer which maps
+# our vocab indices into embedding_dims dimensions
+model.add(Embedding(max_features,
+                    embedding_dims,
+                    input_length=maxlen))
+model.add(Dropout(0.2))
 
-################################
-#  Run text through analyzers  #
-################################
+# we add a Convolution1D, which will learn filters
+# word group filters of size filter_length:
+model.add(Conv1D(filters,
+                 kernel_size,
+                 padding='valid',
+                 activation='relu',
+                 strides=1))
+# we use max pooling:
+model.add(GlobalMaxPooling1D())
 
-poli_analyzed = []
-news_analyzed = []
-sci_analyzed = []
 
-for job, texts in job_text.items():
-    for text in texts:
-        misspelled_words = MisspellingsAnalyzer(text, job).process()
-        length_of_words = LengthOfWordsAnalyzer(text, job).process()
-        negative_score = NegativeScore(text, job).process()
-        word_types = WordTypesAnalyzer(text, job).process()
-        word_case = CapsScore(text, job).process()
-        analyzed = {"misspelled_words": misspelled_words, "length_of_words": length_of_words,
-                    "negative_score": negative_score, "word_types": word_types, "word_case": word_case}
-        if job == "poli":
-            poli_analyzed.append(analyzed)
-        elif job == "news":
-            news_analyzed.append(analyzed)
-        elif job == "sci":
-            sci_analyzed.append(analyzed)
+# Add the changeable layers
+model.add(Dense(16))
+model.add(Dropout(0.2))
+model.add(Activation('relu'))
 
-with open('poli.pickle', 'wb') as handle:
-    pickle.dump(poli_analyzed, handle)
-with open('news.pickle', 'wb') as handle:
-    pickle.dump(news_analyzed, handle)
-with open('sci.pickle', 'wb') as handle:
-    pickle.dump(sci_analyzed, handle)
+# We project onto a single unit output sigmoid layer
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
 
-print(sci_analyzed)
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+
+model.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_data=(x_test, y_test))
+
+print(model.summary())
+
+results = model.evaluate(x_test, y_test)
+
+print(results)
+input("Press enter to continue")
